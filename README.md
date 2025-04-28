@@ -4,6 +4,8 @@
 
 **Havenly** is a platform designed to connect users with available property listings. Users can search for properties based on location, dates, and number of guests. Hosts can also list their properties, manage reservations, and more — all in one streamlined experience.
 
+Try out the website in real time here! -> **https://havenlybg.netlify.app/**
+
 ![Homepage Screenshot](https://i.imgur.com/nJV5HbJ.png)
 
 ## Technologies Used
