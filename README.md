@@ -51,6 +51,82 @@ Try out the website in real time here! -> **https://havenlybg.netlify.app/**
 ├── supabase/               # Database migrations
 ```
 
+
+## Database Schema
+
+The Havenly application uses a PostgreSQL database managed by Supabase. The database schema is designed to store information about users, listings, reservations, and favorites. The key tables are:
+
+*   **profiles:** Stores user profile information.
+    *   `id` (UUID, primary key): References the `auth.users` table.
+    *   `username` (text, unique, not null): User's username.
+    *   `created_at` (timestamp with time zone): Timestamp of when the profile was created.
+    *   `updated_at` (timestamp with time zone): Timestamp of when the profile was last updated.
+    *   *Row Level Security (RLS) is enabled to ensure users can only access their own profile data.*
+
+*   **listings:** Stores information about property listings.
+    *   `id` (UUID, primary key): Unique identifier for the listing.
+    *   `user_id` (UUID, not null, foreign key): References the `profiles` table, indicating the owner of the listing.
+    *   `title` (text): Title of the listing.
+    *   `description` (text): Description of the listing.
+    *   `property_type` (text, not null): Type of property (e.g., house, apartment).
+    *   `access_type` (text, not null): Access type (e.g., entire place, private room).
+    *   `address` (text, not null): Address of the listing.
+    *   `latitude` (numeric): Latitude coordinate of the listing.
+    *   `longitude` (numeric): Longitude coordinate of the listing.
+    *   `max_guests` (integer, not null): Maximum number of guests allowed.
+    *   `bedrooms` (integer, not null): Number of bedrooms.
+    *   `beds` (integer, not null): Number of beds.
+    *   `bathrooms` (numeric, not null): Number of bathrooms.
+    *   `amenities` (text[]): Array of amenities offered.
+    *   `photos` (text[]): Array of image URLs for the listing.
+    *   `highlights` (text[]): Array of highlights for the listing.
+    *   `price_per_night` (numeric, not null): Price per night for the listing.
+    *   `currency` (text, not null, default 'USD'): Currency for the price.
+    *   `status` (text, not null, default 'draft'): Status of the listing (e.g., draft, published).
+    *   `created_at` (timestamp with time zone): Timestamp of when the listing was created.
+    *   `updated_at` (timestamp with time zone): Timestamp of when the listing was last updated.
+    *   *RLS is enabled to ensure users can only manage their own listings.*
+
+*   **reservations:** Stores information about reservations.
+    *   `id` (UUID, primary key): Unique identifier for the reservation.
+    *   `listing_id` (UUID, not null, foreign key): References the `listings` table, indicating the listing being reserved.
+    *   `user_id` (UUID, not null, foreign key): References the `profiles` table, indicating the user making the reservation.
+    *   `check_in_date` (date, not null): Check-in date.
+    *   `check_out_date` (date, not null): Check-out date.
+    *   `guests` (integer, not null): Number of guests.
+    *   `total_price` (numeric, not null): Total price for the reservation.
+    *   `status` (text, not null, default 'pending'): Status of the reservation (e.g., pending, confirmed, cancelled).
+    *   `created_at` (timestamp with time zone): Timestamp of when the reservation was created.
+    *   `updated_at` (timestamp with time zone): Timestamp of when the reservation was last updated.
+     *   *RLS is enabled to ensure users can only manage their own reservations, and hosts can view reservations for their listings.*
+
+*   **favorites:** Stores user's favorite listings.
+    *   `id` (UUID, primary key): Unique identifier for the favorite.
+    *   `user_id` (UUID, not null, foreign key): References the `profiles` table, indicating the user who favorited the listing.
+    *   `listing_id` (UUID, not null, foreign key): References the `listings` table, indicating the listing that was favorited.
+    *   `created_at` (timestamp with time zone): Timestamp of when the listing was favorited.
+    *   `updated_at` (timestamp with time zone): Timestamp of when the listing was last updated.
+    *   *RLS is enabled to ensure users can only manage their own favorites.*
+
+*   **listing\_interactions:** Stores data about how users interact with listings, used for tracking trending listings.
+    *   `id` (UUID, primary key): Unique identifier for the interaction.
+    *   `listing_id` (UUID, not null, foreign key): References the `listings` table.
+    *   `interaction\_date` (date, not null): The date of the interaction.
+    *   `click\_count` (integer, not null): Number of clicks on a listing for a given day.
+    *   `created_at` (timestamp with time zone): Timestamp of when the interaction was created.
+    *   `updated_at` (timestamp with time zone): Timestamp of when the interaction was last updated.
+
+### Relationships
+
+*   The `profiles` table is related to the `auth.users` table through the `id` column, which is a foreign key referencing the `auth.users` table.
+*   The `listings` table is related to the `profiles` table through the `user_id` column, which is a foreign key referencing the `profiles` table.
+*   The `reservations` table is related to the `listings` table through the `listing_id` column, which is a foreign key referencing the `listings` table.
+*   The `reservations` table is related to the `profiles` table through the `user_id` column, which is a foreign key referencing the `profiles` table.
+*   The `favorites` table is related to the `profiles` table through the `user_id` column, which is a foreign key referencing the `profiles` table.
+*   The `favorites` table is related to the `listings` table through the `listing_id` column, which is a foreign key referencing the `listings` table.
+*   The `listing_interactions` table is related to the `listings` table through the `listing_id` column, which is a foreign key referencing the `listings` table.
+
+
 ## Key Folders and Files
 
 - **`.env`**: Stores environment variables like Supabase credentials.
